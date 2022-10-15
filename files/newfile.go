@@ -11,6 +11,11 @@ import (
 var n = 1000
 
 func main() {
+	err := os.Remove("files/input.txt")
+	if err != nil {
+		log.Println(err)
+	}
+
 	set := []int{}
 	set = append(set, n)
 	for i := 0; i < n; i++ {

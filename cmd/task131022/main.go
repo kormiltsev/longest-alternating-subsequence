@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 )
 
 var dif bool
@@ -33,11 +34,12 @@ func reader() {
 }
 
 func main() {
-
+	start := time.Now()
 	// get data
 	reader()
-	fmt.Println(inbox)
+	duration1 := time.Since(start)
 	n := inbox[0]
+	fmt.Println("open and read file done. N =", n)
 	// complete if only 1 element
 	if n <= 1 {
 		return
@@ -60,16 +62,17 @@ func main() {
 		if newi != 0 {
 			m = i
 			outcome = append(outcome, inbox[newi])
-			fmt.Printf("i=%d, m=%d\n", i, m)
 			dif = !dif
 			newi = 0
 		}
 		i++
 	}
-
+	outcome = append(outcome, inbox[m])
+	duration2 := time.Since(start)
 	// write to file
-	fmt.Println("outcome: ", outcome)
 	Writer(outcome)
+	duration3 := time.Since(start)
+	fmt.Println("open and read file:", duration1, "\nprogramm finished (sinse start)", duration2, "\nwrite to file complete (sinse start)", duration3, "\n")
 }
 
 func Writer(outcomes []int) {
