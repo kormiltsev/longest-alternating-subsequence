@@ -8,21 +8,12 @@ import (
 	"strconv"
 )
 
-var ch = make(chan int)
 var dif bool
-var compare int
+var inbox = []int{}
+var outcome = []int{}
 
 func reader() {
-	// fmt.Println("[f] to read from file files/input.txt or input quantity and then data by elements.")
-	// scanner := bufio.NewScanner(os.Stdin)
-	// if scanner.Text() != "f" {
-	// 	i, err := strconv.Atoi(scanner.Text())
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// 	ch <- i
-	// } else {
-	inbox := []int{}
+
 	file, err := os.Open("files/input.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -39,67 +30,46 @@ func reader() {
 		log.Fatal(err)
 	}
 
-	ch <- len(inbox)
-	for _, in := range inbox {
-		ch <- in
-	}
 }
 
 func main() {
 
-	outcome := []int{}
-
 	// get data
-	go reader()
-
-	// manage by element
-	n := <-ch
-	fmt.Println("waiting elements: ", n)
+	reader()
+	fmt.Println(inbox)
+	n := inbox[0]
 	// complete if only 1 element
-	if n == 1 {
-		outcome = append(outcome, <-ch)
-		Writer(outcome)
+	if n <= 1 {
 		return
 	}
-	// get first element
-	compare = <-ch
-	outcome = append(outcome, compare)
-	fmt.Printf("incoming: %d, i=%d\n", compare, n)
-	n--
-	// wait for first element not equal to firts one
-	for n > 0 {
-		x := <-ch
-		fmt.Printf("incoming: %d, i=%d\n", x, n)
-		n--
-		if x-compare > 0 {
-			compare = x
-			dif = true
-			outcome = append(outcome, compare)
-			break
-		} else if x-compare < 0 {
-			dif = false
-			outcome = append(outcome, compare)
-			break
+	dif := false
+	i := 2
+	m := 1
+	newi := 0
+	//outcome = append(outcome, inbox[1])
+	for i <= n {
+		for k := i - 1; k >= m; k-- {
+			if inbox[i]-inbox[k] < 0 && dif {
+				newi = k
+			} else if inbox[i]-inbox[k] > 0 && !dif {
+				newi = k
+			} else {
+				break
+			}
 		}
-	}
-	// continue
-	for n > 0 {
-		x := <-ch
-		fmt.Printf("incoming: %d, i=%d\n", x, n)
-		if x-compare > 0 && !dif {
-			compare = x
-			dif = true
-			outcome = append(outcome, compare)
-		} else if x-compare < 0 && dif {
-			compare = x
-			dif = false
-			outcome = append(outcome, compare)
+		if newi != 0 {
+			m = i
+			outcome = append(outcome, inbox[newi])
+			fmt.Printf("i=%d, m=%d\n", i, m)
+			dif = !dif
+			newi = 0
 		}
-		n--
+		i++
 	}
+
 	// write to file
+	fmt.Println("outcome: ", outcome)
 	Writer(outcome)
-	fmt.Println(outcome)
 }
 
 func Writer(outcomes []int) {

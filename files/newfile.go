@@ -8,9 +8,12 @@ import (
 	"strconv"
 )
 
+var n = 1000
+
 func main() {
 	set := []int{}
-	for i := 0; i < 1000; i++ {
+	set = append(set, n)
+	for i := 0; i < n; i++ {
 		set = append(set, rand.Intn(1000000000))
 	}
 
