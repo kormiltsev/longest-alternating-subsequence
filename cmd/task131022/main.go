@@ -12,10 +12,26 @@ import (
 var dif bool
 var inbox = []int{}
 var outcome = []int{}
+var filename = "files/input.txt"
 
-func reader() {
+// reader for standard input
+func readerdir() {
+	fmt.Println("Enter file name to upload from file or use pipe: go run ./files/generatorstdin.go | go run ./cmd/task131022/main.go")
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		i, err := strconv.Atoi(scanner.Text())
+		if err != nil {
+			reader(scanner.Text())
+			return
+		}
+		inbox = append(inbox, i)
+	}
+}
 
-	file, err := os.Open("files/input.txt")
+// reader from file
+func reader(filename string) {
+
+	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,12 +50,12 @@ func reader() {
 }
 
 func main() {
-	start := time.Now()
+	start := time.Now() // count working time
 	// get data
-	reader()
-	duration1 := time.Since(start)
+	readerdir()
+	duration1 := time.Since(start) // count working time
 	n := inbox[0]
-	fmt.Println("open and read file done. N =", n)
+	fmt.Println("Open and read file done or STDIN got.  N =", n)
 	// complete if only 1 element
 	if n <= 1 {
 		return
@@ -48,7 +64,6 @@ func main() {
 	i := 2
 	m := 1
 	newi := 0
-	//outcome = append(outcome, inbox[1])
 	for i <= n {
 		for k := i - 1; k >= m; k-- {
 			if inbox[i]-inbox[k] < 0 && dif {
@@ -68,14 +83,15 @@ func main() {
 		i++
 	}
 	outcome = append(outcome, inbox[m])
-	duration2 := time.Since(start)
+	duration2 := time.Since(start) // count working time
 	// write to file
-	Writer(outcome)
-	duration3 := time.Since(start)
+	writer(outcome) // to use stdout need to comment all "fmt.*" lines and uncomment next line:
+	//writeout(outcome)
+	duration3 := time.Since(start) // count working time
 	fmt.Println("open and read file:", duration1, "\nprogramm finished (sinse start)", duration2, "\nwrite to file complete (sinse start)", duration3, "\n")
 }
 
-func Writer(outcomes []int) {
+func writer(outcomes []int) {
 	file, err := os.OpenFile("files/output.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
 	if err != nil {
@@ -93,4 +109,10 @@ func Writer(outcomes []int) {
 
 	dwriter.Flush()
 
+}
+
+func writeout(outcomes []int) {
+	for _, val := range outcomes {
+		fmt.Println(val)
+	}
 }
